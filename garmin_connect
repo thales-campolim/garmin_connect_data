@@ -1,20 +1,10 @@
-from garminconnect import Garmin # type: ignore
-import pandas as pd
+from dotenv import load_dotenv # type: ignore
 import os
 
-# Credentials
-email = os.getenv('GARMIN_EMAIL')
-password = os.getenv('GARMIN_PASSWORD')
+load_dotenv()  # This loads the variables from .env
 
-client = Garmin(email, password)
+garmin_password = os.getenv('GARMIN_PASSWORD')
+garmin_username = os.getenv('GARMIN_USERNAME')
 
-try:
-	client.login()
-	# Get activities
-	activities = client.get_activities()
-	# Convert activities to a DataFrame
-	df_activities = pd.DataFrame(activities)
-	# Print the DataFrame
-	print(df_activities)
-except Exception as e:
-	print(f"An error occurred: {e}")
+print(f"Username: {garmin_username}")
+print(f"Password: {garmin_password}")
