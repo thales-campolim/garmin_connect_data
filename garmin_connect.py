@@ -1,11 +1,7 @@
 from dotenv import load_dotenv
 import os
-from garminconnect import (
-    Garmin,
-    GarminConnectConnectionError,
-    GarminConnectTooManyRequestsError,
-    GarminConnectAuthenticationError
-)
+from Garmin import GarminConnectConnectionError,GarminConnectTooManyRequestsError,GarminConnectAuthenticationError # type: ignore
+
 
 load_dotenv()
 
