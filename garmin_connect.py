@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 import os
-from Garmin import GarminConnectConnectionError,GarminConnectTooManyRequestsError,GarminConnectAuthenticationError # type: ignore
-
+from garminconnect import Garmin
 
 load_dotenv()
 
@@ -15,9 +14,9 @@ try:
     client = Garmin(garmin_username, garmin_password)
     client.login()
 except (
-    GarminConnectConnectionError,
-    GarminConnectAuthenticationError,
-    GarminConnectTooManyRequestsError
+    Garmin.GarminConnectConnectionError,
+    Garmin.GarminConnectAuthenticationError,
+    Garmin.GarminConnectTooManyRequestsError
 ) as err:
     print(f"Error occurred: {err}")
 
