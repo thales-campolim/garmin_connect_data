@@ -1,33 +1,54 @@
-# garmin_login.py
 import os
-from dotenv import load_dotenv
-from garminconnect import Garmin
+import garminconnect
+from garth import http
+from datetime import date, timedelta
 
-# Load environment variables
-load_dotenv()
 
+# Set the User-Agent
+http.USER_AGENT = {"User-Agent": "GCM-iOS/5.7.2.1"}
+
+# Debug: Print environment variables
+print("GARMIN_EMAIL environment variable:", os.getenv("GARMIN_EMAIL"))
+print("GARMIN_PASSWORD environment variable:", "***" if os.getenv("GARMIN_PASSWORD") else "Not set")
+
+# Get credentials from environment variables
+email = os.getenv("GARMIN_EMAIL")
+password = os.getenv("GARMIN_PASSWORD")
+
+# Check if credentials are set
+if not email or not password:
+    raise ValueError("Environment variables GARMIN_EMAIL and GARMIN_PASSWORD must be set")
+
+# Initialize Garmin client
+garmin = garminconnect.Garmin(email, password)
+
+# Attempt login
 try:
-    email = os.environ["GARMIN_EMAIL"]
-    password = os.environ["GARMIN_PASSWORD"]
-    token_store = os.getenv("GARMIN_TOKENS", "~/.garmin-tokens")
-except KeyError as e:
-    raise SystemExit(f"Missing required environment variable: {e}")
+    garmin.login()
+    print("Login successful")
+except Exception as e:
+    print(f"Login failed: {str(e)}")
 
-def garmin_login():
-    try:
-        # Attempt token-based login first
-        client = Garmin()
-        client.login(token_store)
-        return client
-    except Exception:
-        # Fallback to email/password with MFA handling
-        client = Garmin(email, password)
-        client.login()
-        
-        # Save tokens for future sessions
-        client.session.dump(token_store)
-        return client
+# Set token path
+GARTH_HOME = os.path.expanduser("~/.garth")
+print(f"Token path: {GARTH_HOME}")
 
-if __name__ == "__main__":
-    api = garmin_login()
-    print(f"Logged in as: {api.get_full_name()}")
+# Attempt to save tokens
+try:
+    garmin.garth.dump(GARTH_HOME)
+    print("Tokens saved successfully")
+except Exception as e:
+    print(f"Failed to save tokens: {str(e)}")
+
+today = date.today()
+today = today.isoformat()
+
+lastrun = garmin.get_last_activity()['splitSummaries'][0]
+stats = garmin.get_max_metrics(today)
+
+vo2max = stats[0]['generic']['vo2MaxPreciseValue']
+miles = round(lastrun['distance']/1609.34, 2)
+effect = garmin.get_last_activity()['trainingEffectLabel']
+duration = round(garmin.get_last_activity()['duration'], 2)
+
+records = garmin.get_personal_record()
